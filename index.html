@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>easyMind - Mental Health Support</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .screen {
+            display: none;
+            padding: 20px;
+            min-height: calc(100vh - 140px);
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .home-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            border: none;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card.journal {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .feature-card.chat {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .feature-card.mood {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .feature-icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .welcome-message {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .nav-footer {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            background: white;
+            padding: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: #f0f8ff;
+        }
+
+        .journal-form {
+            margin-top: 20px;
+        }
+
+        .journal-textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .journal-textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 15px;
+            width: 100%;
+            transition: transform 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .ai-response {
+            background: #f0f8ff;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border-left: 4px solid #4facfe;
+        }
+
+        .mood-chart {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .mood-bar {
+            display: flex;
+            align-items: end;
+            gap: 10px;
+            height: 150px;
+            margin: 20px 0;
+        }
+
+        .mood-day {
+            flex: 1;
+            background: linear-gradient(to top, #4facfe, #00f2fe);
+            border-radius: 5px 5px 0 0;
+            position: relative;
+        }
+
+        .mood-day::after {
+            content: attr(data-day);
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            color: #666;
+        }
+
+        .chat-list {
+            margin-top: 20px;
+        }
+
+        .chat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .chat-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .chat-item.peer {
+            border-left: 4px solid #43e97b;
+        }
+
+        .chat-item.counselor {
+            border-left: 4px solid #fa709a;
+        }
+
+        .back-btn {
+            background: #f0f0f0;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .mood-selector {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .mood-option {
+            text-align: center;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .mood-option:hover {
+            background: #f0f8ff;
+        }
+
+        .mood-emoji {
+            font-size: 30px;
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>easyMind</h1>
+            <p>Your Mental Health Companion</p>
+        </div>
+
+        <!-- Home Screen -->
+        <div class="screen active" id="homeScreen">
+            <div class="welcome-message">
+                <h2>Welcome back! 👋</h2>
+                <p>How are you feeling today?</p>
+            </div>
+
+            <div class="home-grid">
+                <button class="feature-card journal" onclick="showScreen('journalScreen')">
+                    <div class="feature-icon">📝</div>
+                    <h3>Journal</h3>
+                    <p>Express your thoughts</p>
+                </button>
+
+                <button class="feature-card chat" onclick="showScreen('chatScreen')">
+                    <div class="feature-icon">💬</div>
+                    <h3>Chat Support</h3>
+                    <p>Connect with others</p>
+                </button>
+
+                <button class="feature-card mood" onclick="showScreen('moodScreen')">
+                    <div class="feature-icon">📊</div>
+                    <h3>Mood Tracker</h3>
+                    <p>Track your progress</p>
+                </button>
+
+                <button class="feature-card" onclick="showQuickMood()">
+                    <div class="feature-icon">😊</div>
+                    <h3>Quick Mood</h3>
+                    <p>Log how you feel</p>
+                </button>
+            </div>
+        </div>
+
+        <!-- Journal Screen -->
+        <div class="screen" id="journalScreen">
+            <button class="back-btn" onclick="showScreen('homeScreen')">← Back</button>
+            <h2>AI-Guided Journal</h2>
+            <p>Express your thoughts and feelings. Our AI will provide personalized suggestions.</p>
+            
+            <div class="journal-form">
+                <textarea 
+                    class="journal-textarea" 
+                    id="journalText" 
+                    placeholder="How are you feeling today? What's on your mind?"></textarea>
+                <button class="btn" onclick="submitJournal()">Submit & Get AI Guidance</button>
+            </div>
+
+            <div id="aiResponse" style="display: none;"></div>
+        </div>
+
+        <!-- Chat Screen -->
+        <div class="screen" id="chatScreen">
+            <button class="back-btn" onclick="showScreen('homeScreen')">← Back</button>
+            <h2>Support Network</h2>
+            <p>Connect with peer mentors and counselors for support.</p>
+
+            <div class="chat-list">
+                <div class="chat-item peer" onclick="openChat('peer')">
+                    <h4>🟢 Peer Support Chat</h4>
+                    <p>Connect with fellow students who understand your journey</p>
+                    <small>3 active members</small>
+                </div>
+
+                <div class="chat-item counselor" onclick="openChat('counselor')">
+                    <h4>🔴 Counselor Support</h4>
+                    <p>Professional mental health support available</p>
+                    <small>Dr. Lopez available</small>
+                </div>
+
+                <div class="chat-item peer">
+                    <h4>📚 Study Support Group</h4>
+                    <p>Academic stress and time management discussions</p>
+                    <small>8 active members</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mood Screen -->
+        <div class="screen" id="moodScreen">
+            <button class="back-btn" onclick="showScreen('homeScreen')">← Back</button>
+            <h2>Mood Tracking</h2>
+            <p>Visualize your emotional journey and identify patterns.</p>
+
+            <div class="mood-chart">
+                <h3>This Week's Overview</h3>
+                <div class="mood-bar">
+                    <div class="mood-day" style="height: 60%;" data-day="Mon"></div>
+                    <div class="mood-day" style="height: 40%;" data-day="Tue"></div>
+                    <div class="mood-day" style="height: 80%;" data-day="Wed"></div>
+                    <div class="mood-day" style="height: 70%;" data-day="Thu"></div>
+                    <div class="mood-day" style="height: 85%;" data-day="Fri"></div>
+                    <div class="mood-day" style="height: 90%;" data-day="Sat"></div>
+                    <div class="mood-day" style="height: 75%;" data-day="Sun"></div>
+                </div>
+                <p style="text-align: center; color: #666;">Weekly Average: 72% positive</p>
+            </div>
+
+            <div class="mood-selector">
+                <div class="mood-option" onclick="logMood('great')">
+                    <span class="mood-emoji">😄</span>
+                    <span>Great</span>
+                </div>
+                <div class="mood-option" onclick="logMood('good')">
+                    <span class="mood-emoji">😊</span>
+                    <span>Good</span>
+                </div>
+                <div class="mood-option" onclick="logMood('okay')">
+                    <span class="mood-emoji">😐</span>
+                    <span>Okay</span>
+                </div>
+                <div class="mood-option" onclick="logMood('low')">
+                    <span class="mood-emoji">😔</span>
+                    <span>Low</span>
+                </div>
+                <div class="mood-option" onclick="logMood('sad')">
+                    <span class="mood-emoji">😢</span>
+                    <span>Sad</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-footer">
+            <button class="nav-btn active" onclick="showScreen('homeScreen')">
+                🏠<br><small>Home</small>
+            </button>
+            <button class="nav-btn" onclick="showScreen('journalScreen')">
+                📝<br><small>Journal</small>
+            </button>
+            <button class="nav-btn" onclick="showScreen('chatScreen')">
+                💬<br><small>Chat</small>
+            </button>
+            <button class="nav-btn" onclick="showScreen('moodScreen')">
+                📊<br><small>Mood</small>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function showScreen(screenId) {
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Show selected screen
+            document.getElementById(screenId).classList.add('active');
+            
+            // Update nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+        }
+
+        function submitJournal() {
+            const text = document.getElementById('journalText').value;
+            if (text.trim() === '') {
+                alert('Please write something in your journal first.');
+                return;
+            }
+
+            // Simulate AI analysis
+            const responses = [
+                {
+                    analysis: "I can sense you're feeling overwhelmed with academic pressures. This is completely normal for university students.",
+                    suggestions: ["Take a 5-minute breathing exercise", "Try the Pomodoro technique for studying", "Connect with peer support chat"]
+                },
+                {
+                    analysis: "Your entry shows signs of stress but also resilience. You're acknowledging your feelings, which is a great first step.",
+                    suggestions: ["Schedule a break in your routine", "Practice mindful meditation", "Consider talking to a counselor"]
+                },
+                {
+                    analysis: "I notice positive emotions in your writing today. It's wonderful that you're recognizing these moments.",
+                    suggestions: ["Keep a gratitude journal", "Share your positivity in peer chat", "Plan a rewarding activity"]
+                }
+            ];
+
+            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+            
+            const responseHTML = `
+                <div class="ai-response">
+                    <h4>🤖 AI Insight</h4>
+                    <p><strong>Analysis:</strong> ${randomResponse.analysis}</p>
+                    <p><strong>Suggestions:</strong></p>
+                    <ul>
+                        ${randomResponse.suggestions.map(suggestion => `<li>${suggestion}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+
+            document.getElementById('aiResponse').innerHTML = responseHTML;
+            document.getElementById('aiResponse').style.display = 'block';
+        }
+
+        function openChat(type) {
+            if (type === 'peer') {
+                alert('🟢 Connecting to Peer Support Chat...\n\nYou would now enter a moderated chat room with fellow students.');
+            } else if (type === 'counselor') {
+                alert('🔴 Connecting to Professional Support...\n\nYou would now be connected with Dr. Lopez or another available counselor.');
+            }
+        }
+
+        function logMood(mood) {
+            const moodMessages = {
+                'great': 'Wonderful! You\'re having a great day! 😄',
+                'good': 'That\'s nice to hear! Keep it up! 😊',
+                'okay': 'Thanks for checking in. Every day is different. 😐',
+                'low': 'I understand. Consider reaching out for support. 😔',
+                'sad': 'I\'m here for you. Please consider talking to someone. 😢'
+            };
+            
+            alert(`Mood logged: ${moodMessages[mood]}\n\nYour mood has been recorded for today's tracking.`);
+        }
+
+        function showQuickMood() {
+            const mood = prompt('Quick mood check! Rate your mood 1-10 (10 being excellent):');
+            if (mood && mood >= 1 && mood <= 10) {
+                alert(`Mood ${mood}/10 logged! Thank you for checking in.`);
+            }
+        }
+    </script>
+</body>
+</html>
